@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>北风呼啸!</title>
+    <title>北风呼啸,现在站在你面前的是一台电风扇!</title>
     <style>
         body {
             margin: 0;
@@ -14,6 +14,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            cursor: pointer;
         }
         
         .gif-container {
@@ -35,18 +36,35 @@
         audio {
             display: none;
         }
+        
+        /* 强制全屏样式 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* 防止用户右键菜单 */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
     </style>
 </head>
-<body>
-    <div class="12.gif">
+<body class="no-select">
+    <div class="gif-container">
         <!-- 替换为你的GIF文件路径 -->
-        <img src="your-animation.gif" class="gif-image" alt="动画">
+        <img src="12.gif" class="gif-image" alt="动画">
     </div>
     
     <!-- 背景音乐 -->
-    <audio id="1.mp3" loop>
+    <audio id="backgroundMusic" autoplay loop>
         <!-- 替换为你的音乐文件路径 -->
-        <source src="background-music.mp3" type="audio/mpeg">
+        <source src="1.mp3" type="audio/mpeg">
         您的浏览器不支持音频标签。
     </audio>
 
@@ -54,24 +72,69 @@
         document.addEventListener('DOMContentLoaded', function() {
             const audio = document.getElementById('backgroundMusic');
             
-            // 尝试自动播放音乐（可能会被浏览器阻止）
-            audio.play().catch(e => {
-                console.log("自动播放被阻止:", e);
+            // 尝试自动播放音乐
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // 自动播放成功
+                    console.log("音频自动播放成功");
+                })
+                .catch(error => {
+                    // 自动播放被阻止
+                    console.log("自动播放被阻止:", error);
+                    
+                    // 尝试静音后播放
+                    audio.muted = true;
+                    audio.play().then(() => {
+                        // 静音播放成功，尝试短暂延迟后取消静音
+                        setTimeout(() => {
+                            audio.muted = false;
+                        }, 100);
+                    }).catch(error => {
+                        console.log("静音播放也被阻止:", error);
+                    });
+                });
+            }
+            
+            // 防止用户通过右键菜单控制音频
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
             });
             
-            // 用户首次点击页面时尝试取消静音并播放
-            document.addEventListener('click', function() {
-                audio.muted = false;
-                audio.play().catch(e => console.log("播放失败:", e));
-            }, { once: true });
+            // 防止用户通过键盘控制音频
+            document.addEventListener('keydown', function(e) {
+                // 阻止F5（刷新）、F12（开发者工具）、Ctrl+R（刷新）等
+                if ([116, 123, 82].includes(e.keyCode) && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                }
+            });
             
-            // 用户首次触摸页面时尝试取消静音并播放
-            document.addEventListener('touchstart', function() {
-                audio.muted = false;
-                audio.play().catch(e => console.log("播放失败:", e);
-            }, { once: true });
+            // 尝试进入全屏模式
+            function enterFullscreen() {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            }
+            
+            // 页面加载后尝试进入全屏
+            setTimeout(enterFullscreen, 1000);
+            
+            // 防止用户退出全屏
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    // 如果用户退出全屏，立即尝试重新进入
+                    enterFullscreen();
+                }
+            });
         });
     </script>
 </body>
 </html>
-
