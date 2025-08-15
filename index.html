@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>北风呼啸！</title>
+    <title>GIF动画与背景音乐</title>
     <style>
         body {
             margin: 0;
@@ -14,7 +14,6 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            cursor: pointer;
         }
         
         .gif-container {
@@ -36,117 +35,40 @@
         audio {
             display: none;
         }
-        
-        /* 添加播放提示 */
-        .play-hint {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-family: Arial, sans-serif;
-            z-index: 10;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
     </style>
 </head>
 <body>
-    <div class="gif-container">
+    <div class="12.gif">
         <!-- 替换为你的GIF文件路径 -->
-        <img src="12.gif" class="gif-image" alt="动画">
+        <img src="your-animation.gif" class="gif-image" alt="动画">
     </div>
     
     <!-- 背景音乐 -->
-    <audio id="backgroundMusic" loop>
+    <audio id="1.mp3" loop>
         <!-- 替换为你的音乐文件路径 -->
-        <source src="1.mp3" type="audio/mpeg">
+        <source src="background-music.mp3" type="audio/mpeg">
         您的浏览器不支持音频标签。
     </audio>
-    
-    <!-- 播放提示 -->
-    <div id="playHint" class="play-hint"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const audio = document.getElementById('backgroundMusic');
-            const playHint = document.getElementById('playHint');
             
-            // 预加载音频
-            audio.preload = 'auto';
+            // 尝试自动播放音乐（可能会被浏览器阻止）
+            audio.play().catch(e => {
+                console.log("自动播放被阻止:", e);
+            });
             
-            // 用户首次点击页面时尝试播放
+            // 用户首次点击页面时尝试取消静音并播放
             document.addEventListener('click', function() {
-                // 确保音频已加载
-                if (audio.readyState >= 2) {
-                    audio.muted = false;
-                    playHint.style.display = 'none'; // 隐藏提示
-                    
-                    // 使用Promise处理播放
-                    const playPromise = audio.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.then(_ => {
-                            // 播放成功
-                        })
-                        .catch(error => {
-                            // 播放失败
-                            console.log("播放失败:", error);
-                            // 显示错误提示
-                            playHint.textContent = "音频播放失败，请检查文件路径";
-                            playHint.style.display = 'block';
-                        });
-                    }
-                } else {
-                    // 音频未加载完成，等待加载
-                    audio.addEventListener('canplaythrough', function handler() {
-                        audio.removeEventListener('canplaythrough', handler);
-                        audio.muted = false;
-                        playHint.style.display = 'none';
-                        audio.play().catch(e => console.log("播放失败:", e));
-                    });
-                }
+                audio.muted = false;
+                audio.play().catch(e => console.log("播放失败:", e));
             }, { once: true });
             
-            // 用户首次触摸页面时尝试播放（移动设备）
+            // 用户首次触摸页面时尝试取消静音并播放
             document.addEventListener('touchstart', function() {
-                // 确保音频已加载
-                if (audio.readyState >= 2) {
-                    audio.muted = false;
-                    playHint.style.display = 'none'; // 隐藏提示
-                    
-                    // 使用Promise处理播放
-                    const playPromise = audio.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.then(_ => {
-                            // 播放成功
-                        })
-                        .catch(error => {
-                            // 播放失败
-                            console.log("播放失败:", error);
-                            // 显示错误提示
-                            playHint.textContent = "音频播放失败，请检查文件路径";
-                            playHint.style.display = 'block';
-                        });
-                    }
-                } else {
-                    // 音频未加载完成，等待加载
-                    audio.addEventListener('canplaythrough', function handler() {
-                        audio.removeEventListener('canplaythrough', handler);
-                        audio.muted = false;
-                        playHint.style.display = 'none';
-                        audio.play().catch(e => console.log("播放失败:", e));
-                    });
-                }
+                audio.muted = false;
+                audio.play().catch(e => console.log("播放失败:", e);
             }, { once: true });
         });
     </script>
