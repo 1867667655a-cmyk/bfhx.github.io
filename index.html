@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北风呼啸！</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            cursor: pointer;
+        }
+        
+        .gif-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .gif-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+        
+        /* 隐藏音频控制界面 */
+        audio {
+            display: none;
+        }
+        
+        /* 添加播放提示 */
+        .play-hint {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gif-container">
+        <!-- 替换为你的GIF文件路径 -->
+        <img src="12.gif" class="gif-image" alt="动画">
+    </div>
+    
+    <!-- 背景音乐 -->
+    <audio id="backgroundMusic" loop>
+        <!-- 替换为你的音乐文件路径 -->
+        <source src="1.mp3" type="audio/mpeg">
+        您的浏览器不支持音频标签。
+    </audio>
+    
+    <!-- 播放提示 -->
+    <div id="playHint" class="play-hint"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('backgroundMusic');
+            const playHint = document.getElementById('playHint');
+            
+            // 预加载音频
+            audio.preload = 'auto';
+            
+            // 用户首次点击页面时尝试播放
+            document.addEventListener('click', function() {
+                // 确保音频已加载
+                if (audio.readyState >= 2) {
+                    audio.muted = false;
+                    playHint.style.display = 'none'; // 隐藏提示
+                    
+                    // 使用Promise处理播放
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            // 播放成功
+                        })
+                        .catch(error => {
+                            // 播放失败
+                            console.log("播放失败:", error);
+                            // 显示错误提示
+                            playHint.textContent = "音频播放失败，请检查文件路径";
+                            playHint.style.display = 'block';
+                        });
+                    }
+                } else {
+                    // 音频未加载完成，等待加载
+                    audio.addEventListener('canplaythrough', function handler() {
+                        audio.removeEventListener('canplaythrough', handler);
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        audio.play().catch(e => console.log("播放失败:", e));
+                    });
+                }
+            }, { once: true });
+            
+            // 用户首次触摸页面时尝试播放（移动设备）
+            document.addEventListener('touchstart', function() {
+                // 确保音频已加载
+                if (audio.readyState >= 2) {
+                    audio.muted = false;
+                    playHint.style.display = 'none'; // 隐藏提示
+                    
+                    // 使用Promise处理播放
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            // 播放成功
+                        })
+                        .catch(error => {
+                            // 播放失败
+                            console.log("播放失败:", error);
+                            // 显示错误提示
+                            playHint.textContent = "音频播放失败，请检查文件路径";
+                            playHint.style.display = 'block';
+                        });
+                    }
+                } else {
+                    // 音频未加载完成，等待加载
+                    audio.addEventListener('canplaythrough', function handler() {
+                        audio.removeEventListener('canplaythrough', handler);
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        audio.play().catch(e => console.log("播放失败:", e));
+                    });
+                }
+            }, { once: true });
+        });
+    </script>
+</body>
+</html>
