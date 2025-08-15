@@ -37,17 +37,29 @@
             display: none;
         }
         
-        /* 强制全屏样式 */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        /* 播放提示 */
+        .play-hint {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            z-index: 10;
+            animation: pulse 2s infinite;
         }
         
-        /* 防止用户右键菜单 */
-        .no-select {
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        /* 防止用户选择文本 */
+        body {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -55,83 +67,105 @@
         }
     </style>
 </head>
-<body class="no-select">
+<body>
     <div class="gif-container">
         <!-- 替换为你的GIF文件路径 -->
         <img src="12.gif" class="gif-image" alt="动画">
     </div>
     
     <!-- 背景音乐 -->
-    <audio id="backgroundMusic" autoplay loop>
+    <audio id="backgroundMusic" loop>
         <!-- 替换为你的音乐文件路径 -->
         <source src="1.mp3" type="audio/mpeg">
         您的浏览器不支持音频标签。
     </audio>
+    
+    <!-- 播放提示 -->
+    <div id="playHint" class="play-hint">点击屏幕播放背景音乐</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const audio = document.getElementById('backgroundMusic');
+            const playHint = document.getElementById('playHint');
             
-            // 尝试自动播放音乐
+            // 预加载音频
+            audio.preload = 'auto';
+            
+            // 尝试自动播放（静音状态）
+            audio.muted = true;
             const playPromise = audio.play();
             
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
-                    // 自动播放成功
-                    console.log("音频自动播放成功");
+                    // 静音自动播放成功，记录状态
+                    console.log("静音自动播放成功");
+                    
+                    // 用户首次点击页面时取消静音
+                    document.addEventListener('click', function() {
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        console.log("取消静音，音乐开始播放");
+                    }, { once: true });
+                    
+                    // 用户首次触摸页面时取消静音（移动设备）
+                    document.addEventListener('touchstart', function() {
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        console.log("取消静音，音乐开始播放");
+                    }, { once: true });
                 })
                 .catch(error => {
-                    // 自动播放被阻止
-                    console.log("自动播放被阻止:", error);
+                    // 静音自动播放被阻止
+                    console.log("静音自动播放被阻止:", error);
                     
-                    // 尝试静音后播放
-                    audio.muted = true;
-                    audio.play().then(() => {
-                        // 静音播放成功，尝试短暂延迟后取消静音
-                        setTimeout(() => {
-                            audio.muted = false;
-                        }, 100);
-                    }).catch(error => {
-                        console.log("静音播放也被阻止:", error);
-                    });
+                    // 等待用户点击页面时播放
+                    document.addEventListener('click', function() {
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(_ => {
+                                console.log("用户点击后播放成功");
+                            })
+                            .catch(error => {
+                                console.log("用户点击后播放失败:", error);
+                                playHint.textContent = "音频播放失败，请检查文件路径";
+                                playHint.style.display = 'block';
+                            });
+                        }
+                    }, { once: true });
+                    
+                    // 用户首次触摸页面时播放（移动设备）
+                    document.addEventListener('touchstart', function() {
+                        audio.muted = false;
+                        playHint.style.display = 'none';
+                        
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(_ => {
+                                console.log("用户触摸后播放成功");
+                            })
+                            .catch(error => {
+                                console.log("用户触摸后播放失败:", error);
+                                playHint.textContent = "音频播放失败，请检查文件路径";
+                                playHint.style.display = 'block';
+                            });
+                        }
+                    }, { once: true });
                 });
             }
             
-            // 防止用户通过右键菜单控制音频
+            // 防止用户通过右键菜单控制
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
             });
             
-            // 防止用户通过键盘控制音频
+            // 防止用户通过键盘控制（如F5刷新）
             document.addEventListener('keydown', function(e) {
                 // 阻止F5（刷新）、F12（开发者工具）、Ctrl+R（刷新）等
                 if ([116, 123, 82].includes(e.keyCode) && (e.ctrlKey || e.metaKey)) {
                     e.preventDefault();
-                }
-            });
-            
-            // 尝试进入全屏模式
-            function enterFullscreen() {
-                const elem = document.documentElement;
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
-            }
-            
-            // 页面加载后尝试进入全屏
-            setTimeout(enterFullscreen, 1000);
-            
-            // 防止用户退出全屏
-            document.addEventListener('fullscreenchange', function() {
-                if (!document.fullscreenElement) {
-                    // 如果用户退出全屏，立即尝试重新进入
-                    enterFullscreen();
                 }
             });
         });
