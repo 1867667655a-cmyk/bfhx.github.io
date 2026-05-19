@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>北风呼啸,现在站在你面前的是一台电风扇!</title>
+    <title>北风呼啸,现在站在你面前的是一台电风扇</title>
     <style>
         body {
             margin: 0;
@@ -32,12 +32,9 @@
             display: block;
         }
         
-        /* 隐藏音频控制界面 */
         audio {
             display: none;
         }
-        
-        /* 播放提示 */
         .play-hint {
             position: absolute;
             top: 20px;
@@ -69,13 +66,9 @@
 </head>
 <body>
     <div class="gif-container">
-        <!-- 替换为你的GIF文件路径 -->
         <img src="12.gif" class="gif-image" alt="动画">
     </div>
-    
-    <!-- 背景音乐 -->
     <audio id="backgroundMusic" loop>
-        <!-- 替换为你的音乐文件路径 -->
         <source src="1.mp3" type="audio/mpeg">
         您的浏览器不支持音频标签。
     </audio>
@@ -148,7 +141,7 @@
                             })
                             .catch(error => {
                                 console.log("用户触摸后播放失败:", error);
-                                playHint.textContent = "音频播放失败，请检查文件路径";
+                                playHint.textContent = "音频播放失败";
                                 playHint.style.display = 'block';
                             });
                         }
